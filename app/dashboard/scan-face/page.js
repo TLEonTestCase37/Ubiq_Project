@@ -174,8 +174,6 @@ export default function FaceChecker() {
 
         {message && <p className="mt-3 text-center font-medium">{message}</p>}
       </div>
-
-      <p className="mt-6 text-sm text-white/70 font-mono">Powered by face-api.js & Supabase</p>
-    </div>
+ </div>
   );
 }
