@@ -4,8 +4,7 @@ import * as faceapi from "face-api.js";
 import { supabase } from "@/lib/supabaseClient";
 import CryptoJS from "crypto-js";
 
-const SECRET_KEY = "MY_SECRET_KEY_123";
-
+const SECRET_KEY = process.env.NEXT_PUBLIC_SECRET_KEY;
 export default function FaceRegister() {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -176,9 +175,8 @@ export default function FaceRegister() {
           <button
             onClick={captureEmbedding}
             disabled={processingCapture}
-            className={`w-full py-3 rounded-2xl font-semibold text-white shadow-lg transition-all duration-200 ${
-              processingCapture ? "bg-gray-400 cursor-not-allowed" : "bg-pink-500 hover:bg-pink-600 hover:scale-105"
-            }`}
+            className={`w-full py-3 rounded-2xl font-semibold text-white shadow-lg transition-all duration-200 ${processingCapture ? "bg-gray-400 cursor-not-allowed" : "bg-pink-500 hover:bg-pink-600 hover:scale-105"
+              }`}
           >
             {processingCapture ? "Processing..." : "Capture Face from Camera"}
           </button>
@@ -220,9 +218,8 @@ export default function FaceRegister() {
             <button
               onClick={handleRegister}
               disabled={processingRegister}
-              className={`w-full py-3 mt-2 rounded-2xl font-semibold transition-all duration-200 ${
-                processingRegister ? "bg-gray-400 cursor-not-allowed text-white" : "bg-green-500 hover:bg-green-600 hover:scale-105 text-white"
-              }`}
+              className={`w-full py-3 mt-2 rounded-2xl font-semibold transition-all duration-200 ${processingRegister ? "bg-gray-400 cursor-not-allowed text-white" : "bg-green-500 hover:bg-green-600 hover:scale-105 text-white"
+                }`}
             >
               {processingRegister ? "Registering..." : "Register & Generate QR Key"}
             </button>
@@ -239,7 +236,7 @@ export default function FaceRegister() {
         {message && <p className="mt-3 text-center font-medium">{message}</p>}
       </div>
 
-   
+
     </div>
   );
 }

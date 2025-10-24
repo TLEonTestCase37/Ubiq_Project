@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabaseClient";
 import CryptoJS from "crypto-js";
 
 // AES secret key (must match QR generator)
-const SECRET_KEY = "MY_SECRET_KEY_123";
+const SECRET_KEY = process.env.NEXT_PUBLIC_SECRET_KEY;
 
 export async function POST(req) {
   try {
