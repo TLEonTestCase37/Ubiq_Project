@@ -97,7 +97,7 @@ export default function QRPage() {
   };
 
   const handleFaceScan = () => {
-    router.push("/facescan");
+    router.push("/dashboard/scan-face");
   };
 
   return (
