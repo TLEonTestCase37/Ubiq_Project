@@ -2,6 +2,7 @@
 import { useRef, useState, useEffect } from "react";
 import * as faceapi from "face-api.js";
 import { supabase } from "@/lib/supabaseClient";
+import { getAuth } from "firebase/auth";
 
 export default function FaceChecker() {
   const videoRef = useRef(null);
@@ -91,6 +92,27 @@ export default function FaceChecker() {
       if (minDistance < 0.6 && bestMatch) {
         setMatchedUser(bestMatch);
         setMessage("✅ Match found!");
+
+        // 🔹 Get Firebase-authenticated user's email
+        const auth = getAuth();
+        const currentUser = auth.currentUser;
+        const scannerEmail = currentUser?.email || "unknown";
+
+        // 🔹 Log event into Supabase
+        const { error } = await supabase.from("logs").insert([
+          {
+            scanner_email: scannerEmail,
+            scan_type: "face",
+            matched_name: bestMatch.name,
+            matched_email: bestMatch.email,
+          },
+        ]);
+
+        if (error) {
+          console.error("❌ Failed to log scan:", error);
+        } else {
+          console.log("✅ Logged scan successfully");
+        }
       } else {
         setMessage("❌ No matching user found.");
       }
@@ -149,9 +171,8 @@ export default function FaceChecker() {
           <button
             onClick={handleCapture}
             disabled={processing}
-            className={`w-full py-3 rounded-2xl font-semibold text-white shadow-lg transition-all duration-200 ${
-              processing ? "bg-gray-400 cursor-not-allowed" : "bg-pink-500 hover:bg-pink-600 hover:scale-105"
-            }`}
+            className={`w-full py-3 rounded-2xl font-semibold text-white shadow-lg transition-all duration-200 ${processing ? "bg-gray-400 cursor-not-allowed" : "bg-pink-500 hover:bg-pink-600 hover:scale-105"
+              }`}
           >
             {processing ? "Processing..." : "Scan from Camera"}
           </button>
@@ -174,6 +195,6 @@ export default function FaceChecker() {
 
         {message && <p className="mt-3 text-center font-medium">{message}</p>}
       </div>
- </div>
+    </div>
   );
 }

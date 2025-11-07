@@ -2,6 +2,21 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import QrScanner from "qr-scanner";
+import { getAuth } from "firebase/auth";
+import { supabase } from "@/lib/supabaseClient";
+
+async function logScan({ scanner_email, scan_type, matched_name, matched_email }) {
+  try {
+    const { error } = await supabase.from("logs").insert([
+      { scanner_email, scan_type, matched_name, matched_email },
+    ]);
+    if (error) console.error("❌ Failed to log scan:", error);
+    else console.log("✅ Logged scan successfully");
+  } catch (err) {
+    console.error("❌ Unexpected error logging scan:", err);
+  }
+}
+
 
 export default function QRPage() {
   const videoRef = useRef(null);
@@ -44,8 +59,25 @@ export default function QRPage() {
         body: JSON.stringify({ payload }),
       });
       const data = await res.json();
-      if (data.user) setUserData(data.user);
-      else setUserData(null);
+      if (data.user) {
+        setUserData(data.user);
+
+        // 🔹 Get scanner email from Firebase
+        const auth = getAuth();
+        const currentUser = auth.currentUser;
+        const scannerEmail = currentUser?.email || "unknown";
+
+        // 🔹 Log the scan to Supabase
+        await logScan({
+          scanner_email: scannerEmail,
+          scan_type: "qr",
+          matched_name: data.user.name,
+          matched_email: data.user.email,
+        });
+      } else {
+        setUserData(null);
+      }
+
     } catch {
       setUserData(null);
     } finally {
@@ -110,17 +142,15 @@ export default function QRPage() {
       <div className="flex justify-center gap-4 mb-6">
         <button
           onClick={() => setUploadMode(false)}
-          className={`px-5 py-2 rounded-lg font-semibold transition ${
-            !uploadMode ? "bg-green-500 hover:bg-green-600 text-white" : "bg-gray-600 text-white"
-          }`}
+          className={`px-5 py-2 rounded-lg font-semibold transition ${!uploadMode ? "bg-green-500 hover:bg-green-600 text-white" : "bg-gray-600 text-white"
+            }`}
         >
           📷 Scan with Camera
         </button>
         <button
           onClick={() => setUploadMode(true)}
-          className={`px-5 py-2 rounded-lg font-semibold transition ${
-            uploadMode ? "bg-blue-500 hover:bg-blue-600 text-white" : "bg-gray-600 text-white"
-          }`}
+          className={`px-5 py-2 rounded-lg font-semibold transition ${uploadMode ? "bg-blue-500 hover:bg-blue-600 text-white" : "bg-gray-600 text-white"
+            }`}
         >
           🖼️ Upload QR Image
         </button>
